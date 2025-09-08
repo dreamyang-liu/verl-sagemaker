@@ -19,7 +19,7 @@ if [ ! -d "$OUTPUT_BASE_PATH" ]; then
 fi
 
 cd $WORKSPACE_DIR
-git clone https://github.com/volcengine/verl verl-sagemaker
+git clone https://github.com/dreamyang-liu/verl-sagemaker.git verl-sagemaker
 cd verl-sagemaker
 pip3 install --no-deps -e .
 
