@@ -17,6 +17,8 @@ from typing import Any, Optional
 
 from omegaconf import DictConfig, ListConfig, OmegaConf
 
+import os
+
 __all__ = ["omega_conf_to_dataclass", "validate_config"]
 
 
@@ -111,7 +113,17 @@ def validate_config(
             f"real_train_batch_size ({real_train_batch_size}) must be divisible by minimal possible batch size "
             f"({minimal_bsz})"
         )
-
+    output_base_path = os.getenv("OUTPUT_BASE_PATH", "/opt/ml/output")
+    if not config.trainer.default_local_dir.startswith(output_base_path):
+        print(
+            f"WARNING: The default_local_dir {config.trainer.default_local_dir} does not start with {output_base_path}. "
+            "This may cause issues in certain managed environments."
+            f"We will automatically change default_local_dir to be under {output_base_path}."
+        )
+        config.trainer.default_local_dir = os.path.join(
+            output_base_path, os.path.abspath(config.trainer.default_local_dir)
+        )
+        
     # A helper function to check "micro_batch_size" vs "micro_batch_size_per_gpu"
     # We throw an error if the user sets both. The new convention is "..._micro_batch_size_per_gpu".
     def check_mutually_exclusive(mbs, mbs_per_gpu, name: str):
