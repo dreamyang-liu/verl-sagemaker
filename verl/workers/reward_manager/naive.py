@@ -16,6 +16,7 @@ from collections import defaultdict
 from typing import Any
 
 import torch
+import json
 
 from verl import DataProto
 from verl.utils.reward_score import default_compute_score
@@ -84,11 +85,19 @@ class NaiveRewardManager(AbstractRewardManager):
             num_turns = data_item.non_tensor_batch.get("__num_turns__", None)
             extra_info["num_turns"] = num_turns
 
-            score = self.compute_score(
-                data_source=data_source,
-                solution_str=response_str,
-                ground_truth=ground_truth,
-                extra_info=extra_info,
+            # print(data_source)
+            # print(response_str)
+            # print(ground_truth)
+            # raise Exception("Debug")
+
+            if isinstance(ground_truth, str):
+                ground_truth = json.loads(ground_truth)
+
+            score, _ = self.compute_score(
+                completion=response_str,
+                test_cases=ground_truth,
+                is_binary_reward=True,
+                is_power4_reward=False
             )
 
             if isinstance(score, dict):
